@@ -1,6 +1,9 @@
 import { useState } from 'react';
 
-// Convention to use onSomething names for props which represent events.
+// Any comment that has 'NOTE:' at the start is a note I made while following
+// the tutorial at https://react.dev/learn/tutorial-tic-tac-toe.
+
+// NOTE: Convention to use onSomething names for props which represent events.
 function Square({ value, onSquareClick }) {
   return (
     <button className="square" onClick={onSquareClick}>
@@ -10,13 +13,13 @@ function Square({ value, onSquareClick }) {
 }
 
 function Board({ xIsNext, squares, onPlay }) {
-  // Convention to use handleSomething for function definitions which
+  // NOTE: Convention to use handleSomething for function definitions which
   // handle events.
   function handleClick(i) {
     if (squares[i] || calculateWinner(squares)) {
       return;
     }
-    // Get a copy rather than mutating the array directly, as useful
+    // NOTE: Get a copy rather than mutating the array directly, as useful
     // for doing things like undo and redo in apps, it also means
     // that you only need to rerender a part of the array (i.e. one 
     // square in this case), rather than the entire array if you
@@ -47,7 +50,7 @@ function Board({ xIsNext, squares, onPlay }) {
     for (let colNum=0; colNum<numCols; colNum++) {
       // Collapsing 2d index to 1d index.
       let i = (rowNum * numCols) + colNum;
-      // () => are arrow functions, similar to lambda in Python.
+      // NOTE: () => are arrow functions, similar to lambda in Python.
       cells.push(<Square value={squares[i]} onSquareClick={() => handleClick(i)} key={colNum}/>);
 
     }
@@ -55,7 +58,7 @@ function Board({ xIsNext, squares, onPlay }) {
   }
 
   return (
-    // Use fragments to return several lines of html. I.e. can only
+    // NOTE: Use fragments to return several lines of html. I.e. can only
     // return one element, so all html must either be in something
     // like a div, or a fragment.
     <>
@@ -88,7 +91,8 @@ export default function Game() {
   }
   
 
-
+  // Generating each list element for the moves history section,
+  // each one can be clicked to jump back to before that move was made.
   const moves = history.map((squares, move) => {
     let description;
     let elem;
