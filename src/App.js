@@ -39,7 +39,9 @@ function Board({ xIsNext, squares, onPlay }) {
   }
 
   return (
-    // Use fragments to return several lines of html.
+    // Use fragments to return several lines of html. I.e. can only
+    // return one element, so all html must either be in something
+    // like a div, or a fragment.
     // () => are arrow functions, similar to lambda in Python.
     <>
       <div className="status">{status}</div>
@@ -62,6 +64,59 @@ function Board({ xIsNext, squares, onPlay }) {
   );
 }
 
+
+export default function Game() {
+  const [history, setHistory] = useState([Array(9).fill(null)]);
+  const [currentMove, setCurrentMove] = useState(0);
+  const xIsNext = currentMove % 2 === 0;
+  const currentSquares = history[currentMove];
+
+  function handlePlay(nextSquares) {
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares]
+    setHistory(nextHistory);
+    setCurrentMove(nextHistory.length - 1);
+  }
+
+  function jumpTo(nextMove) {
+    setCurrentMove(nextMove);
+  }
+
+  const moves = history.map((squares, move) => {
+    let description;
+    let elem;
+    // Showing text rarther than a button for the current move.
+    if (move === currentMove) {
+      description = "You are at move #" + move;
+      elem = <p>{description}</p>;
+    } else {
+      if (move > 0) {
+        description = "Go to move #" + move;
+      } else {
+        description = "Go to game start";
+      }
+      elem = <button onClick={() => jumpTo(move)}>{description}</button>;
+    }
+    
+
+    return (
+      <li key={move}>
+        {elem}
+      </li>
+    )
+  })
+
+  return (
+    <div className="game">
+      <div className="game-board">
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay}/>
+      </div>
+      <div className="game-info">
+        <ol>{moves}</ol>
+      </div>
+    </div>
+  )
+}
+
 function calculateWinner(squares) {
   const lines = [
     [0, 1, 2],
@@ -82,46 +137,4 @@ function calculateWinner(squares) {
   }
 
   return null;
-}
-
-export default function Game() {
-  const [history, setHistory] = useState([Array(9).fill(null)]);
-  const [currentMove, setCurrentMove] = useState(0);
-  const xIsNext = currentMove % 2 === 0;
-  const currentSquares = history[currentMove];
-
-  function handlePlay(nextSquares) {
-    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares]
-    setHistory(nextHistory);
-    setCurrentMove(nextHistory.length - 1);
-  }
-
-  function jumpTo(nextMove) {
-    setCurrentMove(nextMove);
-  }
-
-  const moves = history.map((squares, move) => {
-    let description;
-    if (move > 0) {
-      description = "Go to move #" + move;
-    } else {
-      description = "Go to game start";
-    }
-    return (
-      <li key={move}>
-        <button onClick={() => jumpTo(move)}>{description}</button>
-      </li>
-    )
-  })
-
-  return (
-    <div className="game">
-      <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay}/>
-      </div>
-      <div className="game-info">
-        <ol>{moves}</ol>
-      </div>
-    </div>
-  )
 }
