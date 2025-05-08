@@ -4,7 +4,7 @@ import { useState } from 'react';
 // the tutorial at https://react.dev/learn/tutorial-tic-tac-toe.
 
 // NOTE: Convention to use onSomething names for props which represent events.
-function Square({ value, onSquareClick, isWinner}) {
+function Square({ value, onSquareClick, isWinner }) {
   const className = "square " + (isWinner ? "win" : "");
   return (
     <button className={className} onClick={onSquareClick}>
@@ -13,7 +13,7 @@ function Square({ value, onSquareClick, isWinner}) {
   );
 }
 
-function Board({ xIsNext, squares, onPlay, currentMove}) {
+function Board({ xIsNext, squares, onPlay, currentMove, handleClick }) {
   // NOTE: Convention to use handleSomething for function definitions which
   // handle events.
   function handleClick(i) {
@@ -79,6 +79,8 @@ function Board({ xIsNext, squares, onPlay, currentMove}) {
 
 
 export default function Game() {
+  // NOTE: use useState when you don't want the variable/constant
+  // to be reset to the default value every render.
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
   const [sortMovesDescending, setSortMovesDescending] = useState(true);
@@ -107,11 +109,14 @@ export default function Game() {
     let elem;
     // Showing text rarther than a button for the current move.
     if (move === currentMove) {
-      description = "You are at move #" + move;
+      const prev2Moves = history.slice(move-1, move+1);
+      description = "You are at move #" + move + 
+                ( (move>0) ? (" - " + getPrevMove(prev2Moves)) : "" );
       elem = <p>{description}</p>;
     } else {
       if (move > 0) {
-        description = "Go to move #" + move;
+        const prev2Moves = history.slice(move-1, move+1);
+        description = "Go to move #" + move + " - " + getPrevMove(prev2Moves);
       } else {
         description = "Go to game start";
       }
@@ -165,5 +170,18 @@ function calculateWinner(squares) {
   return {
     winner: null,
     winnerLine: null,
+  }
+}
+
+function getPrevMove(prev2Moves) {
+  const first = prev2Moves[0];
+  const second = prev2Moves[1];
+  for (let i=0; i<first.length; i++) {
+    if (first[i] != second[i]) {
+      const value = second[i];
+      const colNum = i % 3;
+      const rowNum = (i - colNum) / 3;
+      return value + " (" + rowNum + ", " + colNum + ")" 
+    }
   }
 }
