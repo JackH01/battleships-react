@@ -38,28 +38,29 @@ function Board({ xIsNext, squares, onPlay }) {
     status = "Next player: " + (xIsNext ? "X" : "O")
   }
 
+  // Generating the 3x3 table to play on.
+  let numRows = 3;
+  let numCols = 3;
+  const rows = []
+  for (let rowNum=0; rowNum<numRows; rowNum++) {
+    const cells = []
+    for (let colNum=0; colNum<numCols; colNum++) {
+      // Collapsing 2d index to 1d index.
+      let i = (rowNum * numCols) + colNum;
+      // () => are arrow functions, similar to lambda in Python.
+      cells.push(<Square value={squares[i]} onSquareClick={() => handleClick(i)}/>);
+
+    }
+    rows.push(<div className="board-row">{cells}</div>)
+  }
+
   return (
     // Use fragments to return several lines of html. I.e. can only
     // return one element, so all html must either be in something
     // like a div, or a fragment.
-    // () => are arrow functions, similar to lambda in Python.
     <>
       <div className="status">{status}</div>
-      <div className="board-row">
-        <Square value={squares[0]} onSquareClick={() => handleClick(0)}/>
-        <Square value={squares[1]} onSquareClick={() => handleClick(1)}/>
-        <Square value={squares[2]} onSquareClick={() => handleClick(2)}/>
-      </div>
-      <div className="board-row">
-        <Square value={squares[3]} onSquareClick={() => handleClick(3)}/>
-        <Square value={squares[4]} onSquareClick={() => handleClick(4)}/>
-        <Square value={squares[5]} onSquareClick={() => handleClick(5)}/>
-      </div>
-      <div className="board-row">
-        <Square value={squares[6]} onSquareClick={() => handleClick(6)}/>
-        <Square value={squares[7]} onSquareClick={() => handleClick(7)}/>
-        <Square value={squares[8]} onSquareClick={() => handleClick(8)}/>
-      </div>
+      {rows}
     </>
   );
 }
@@ -96,8 +97,6 @@ export default function Game() {
       }
       elem = <button onClick={() => jumpTo(move)}>{description}</button>;
     }
-    
-
     return (
       <li key={move}>
         {elem}
