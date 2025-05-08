@@ -48,10 +48,10 @@ function Board({ xIsNext, squares, onPlay }) {
       // Collapsing 2d index to 1d index.
       let i = (rowNum * numCols) + colNum;
       // () => are arrow functions, similar to lambda in Python.
-      cells.push(<Square value={squares[i]} onSquareClick={() => handleClick(i)}/>);
+      cells.push(<Square value={squares[i]} onSquareClick={() => handleClick(i)} key={colNum}/>);
 
     }
-    rows.push(<div className="board-row">{cells}</div>)
+    rows.push(<div className="board-row" key={rowNum}>{cells}</div>)
   }
 
   return (
@@ -69,6 +69,7 @@ function Board({ xIsNext, squares, onPlay }) {
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
+  const [sortMovesDescending, setSortMovesDescending] = useState(true);
   const xIsNext = currentMove % 2 === 0;
   const currentSquares = history[currentMove];
 
@@ -81,6 +82,12 @@ export default function Game() {
   function jumpTo(nextMove) {
     setCurrentMove(nextMove);
   }
+
+  function handleSortClick() {
+    setSortMovesDescending(!sortMovesDescending);
+  }
+  
+
 
   const moves = history.map((squares, move) => {
     let description;
@@ -110,7 +117,11 @@ export default function Game() {
         <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay}/>
       </div>
       <div className="game-info">
-        <ol>{moves}</ol>
+        <button 
+          className="sort" 
+          onClick={handleSortClick}>{"Sort: " + (sortMovesDescending ? "Descending" : "Ascending")}
+        </button>
+        <ol>{(sortMovesDescending ? moves : moves.reverse())}</ol>
       </div>
     </div>
   )
