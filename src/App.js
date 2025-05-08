@@ -4,19 +4,21 @@ import { useState } from 'react';
 // the tutorial at https://react.dev/learn/tutorial-tic-tac-toe.
 
 // NOTE: Convention to use onSomething names for props which represent events.
-function Square({ value, onSquareClick }) {
+function Square({ value, onSquareClick, isWinner}) {
+  const className = "square " + (isWinner ? "win" : "");
   return (
-    <button className="square" onClick={onSquareClick}>
+    <button className={className} onClick={onSquareClick}>
       {value}
     </button>
   );
 }
 
-function Board({ xIsNext, squares, onPlay }) {
+function Board({ xIsNext, squares, onPlay, currentMove}) {
   // NOTE: Convention to use handleSomething for function definitions which
   // handle events.
   function handleClick(i) {
-    if (squares[i] || calculateWinner(squares)) {
+    const {winner, winnerLine} = calculateWinner(squares)
+    if (squares[i] || winner) {
       return;
     }
     // NOTE: Get a copy rather than mutating the array directly, as useful
@@ -33,10 +35,12 @@ function Board({ xIsNext, squares, onPlay }) {
     onPlay(nextSquares);
   }
 
-  const winner = calculateWinner(squares);
+  const {winner, winnerLine} = calculateWinner(squares);
   let status;
   if (winner) {
     status = "Winner: " + winner
+  } else if (currentMove >= 9) {
+    status = "Draw";
   } else {
     status = "Next player: " + (xIsNext ? "X" : "O")
   }
@@ -50,8 +54,13 @@ function Board({ xIsNext, squares, onPlay }) {
     for (let colNum=0; colNum<numCols; colNum++) {
       // Collapsing 2d index to 1d index.
       let i = (rowNum * numCols) + colNum;
+      // Check if there was a winner and if this square is part of the winner line.
+      let isWinner = (winnerLine != null && winnerLine.includes(i))
       // NOTE: () => are arrow functions, similar to lambda in Python.
-      cells.push(<Square value={squares[i]} onSquareClick={() => handleClick(i)} key={colNum}/>);
+      cells.push(<Square value={squares[i]} 
+                          onSquareClick={() => handleClick(i)} 
+                          isWinner={isWinner}
+                          key={i}/>);
 
     }
     rows.push(<div className="board-row" key={rowNum}>{cells}</div>)
@@ -118,7 +127,7 @@ export default function Game() {
   return (
     <div className="game">
       <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay}/>
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} currentMove={currentMove}/>
       </div>
       <div className="game-info">
         <button 
@@ -146,9 +155,15 @@ function calculateWinner(squares) {
   for (let i=0; i<lines.length; i++) {
     const [a, b, c] = lines[i];
     if (squares[a] && squares[a] == squares[b] && squares[a] == squares[c]) {
-      return squares[a]
+      return {
+        winner: squares[a],
+        winnerLine: lines[i],
+      }
     }
   }
 
-  return null;
+  return {
+    winner: null,
+    winnerLine: null,
+  }
 }
